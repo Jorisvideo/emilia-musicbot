@@ -84,7 +84,18 @@ function play(msg, queue, song) {
                     "toplay": stream
                 })
                 console.log("Queued " + queue[queue.length - 1].title + " in " + msg.guild.name + " as requested by " + queue[queue.length - 1].requested)
-                msg.channel.sendMessage("Queued **" + queue[queue.length - 1].title + "**")
+                msg.channel.sendMessage({
+                embed: {
+                    author: {
+                        name: client.user.username,
+                        icon_url: client.user.avatarURL,
+                        url: "http://takohell.com:3000"
+                    },
+                    color: 0x00FF00,
+                    title: `Queued`,
+                    description: "**" + queue[queue.length - 1].title + "**"
+                }
+                    });
                 if (test) {
                     setTimeout(function() {
                         play(msg, queue)
@@ -92,7 +103,18 @@ function play(msg, queue, song) {
                 }
             })
         } else if (queue.length != 0) {
-            msg.channel.sendMessage(`Now Playing **${queue[0].title}** | Requested by ***${queue[0].requested}***`)
+                        msg.channel.sendMessage({
+        embed: {
+            author: {
+                name: client.user.username,
+                icon_url: client.user.avatarURL,
+                url: "http://takohell.com:3000"
+            },
+            color: 0x00FF00,
+            title: `Now Playing`,
+            description: `**${queue[0].title}** | Requested by ***${queue[0].requested}***`
+        }
+            });
             console.log(`Playing ${queue[0].title} as requested by ${queue[0].requested} in ${msg.guild.name}`);
             client.user.setGame(queue[0].title);
             let connection = msg.guild.voiceConnection
@@ -290,7 +312,18 @@ client.on("message", function(msg) {
         if (msg.content.startsWith(prefix + 'np') || msg.content.startsWith(prefix + 'nowplaying')) {
             let queue = getQueue(msg.guild.id);
             if (queue.length == 0) return msg.channel.sendMessage(msg, "No music in queue");
-            msg.channel.sendMessage(`${rb}xl\nCurrently playing: ${queue[0].title} | by ${queue[0].requested}${rb}`);
+            msg.channel.sendMessage({
+        embed: {
+            author: {
+                name: client.user.username,
+                icon_url: client.user.avatarURL,
+                url: "http://takohell.com:3000"
+            },
+            color: 0x00FF00,
+            title: `Currently playing`,
+            description: `${queue[0].title} | by ${queue[0].requested}`
+        }
+            });
         }
 
         if (msg.content.startsWith(prefix + 'queue')) {
@@ -300,7 +333,18 @@ client.on("message", function(msg) {
             for (let i = 0; i < queue.length; i++) {
                 text += `${(i + 1)}. ${queue[i].title} | requested by ${queue[i].requested}\n`
             };
-            msg.channel.sendMessage(`${rb}xl\n${text}${rb}`);
+            msg.channel.sendMessage({
+        embed: {
+            author: {
+                name: client.user.username,
+                icon_url: client.user.avatarURL,
+                url: "http://takohell.com:3000"
+            },
+            color: 0x00FF00,
+            title: `Queue`,
+            description: `\n${text}`
+        }
+            });
         }
     } catch (err) {
         console.log("WELL LADS LOOKS LIKE SOMETHING WENT WRONG! Visit Joris Video and quote this error:\n\n\n" + err.stack)
