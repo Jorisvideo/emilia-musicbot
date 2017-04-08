@@ -1,0 +1,33 @@
+{
+  "name": "emilia-music-bot",
+  "version": "1.0.0",
+  "description": "A simple discord.js music emilia bot",
+  "main": "bot.js",
+  "scripts": {
+    "test": "node bot.js"
+  },
+  "keywords": [
+    "music",
+    "bot",
+    "discord",
+    "node.js",
+    "npm",
+    "ytdl"
+  ],
+  "author": "Silver Crow",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^11.0.0",
+    "opusscript": "0.0.1",
+    "youtube-search": "^1.0.6",
+    "ytdl-core": "^0.7.17"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jorisvideo/emilia-musicbot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Jorisvideo/emilia-musicbot/issues"
+  },
+  "homepage": "https://github.com/Jorisvideo/emilia-musicbot#readme"
+}
