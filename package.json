@@ -1,6 +1,6 @@
 {
   "name": "emilia-music-bot",
-  "version": "1.0.0",
+  "version": "0.1.5",
   "description": "A simple discord.js music emilia bot",
   "main": "bot.js",
   "scripts": {
@@ -17,8 +17,11 @@
   "author": "Silver Crow",
   "license": "MIT",
   "dependencies": {
+    "colors": "^1.1.2",
     "discord.js": "^11.0.0",
+    "git-rev": "^0.2.1",
     "opusscript": "0.0.1",
+    "uws": "^0.14.1",
     "youtube-search": "^1.0.6",
     "ytdl-core": "^0.7.17"
   },

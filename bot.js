@@ -1,7 +1,13 @@
 var errorlog = require("./data/errors.json")
 
-const Discord = require("discord.js")
-const con = console.log;
+const Discord = require("discord.js"),
+con = console.log,
+git = require('git-rev');
+
+git.short(commit => git.branch(branch => {
+  console.log(`Emilia#${branch}@${commit}`);
+}));
+const CURRENT_REV = "0.1.5";
 try {
     var config = require('./config.json');
     con("Config file detected!");
@@ -162,6 +168,7 @@ client.on('ready', function() {
         client.user.setStatus('online', config.status)
         var msg = `
 ------------------------------------------------------
+> version 0.1.5
 > Do 'git pull' periodically to keep your bot updated! / Faites 'git pull' périodiquement pour garder votre bot à jour! 
 > Logging in...
 ------------------------------------------------------
@@ -256,7 +263,11 @@ client.on("message", function(msg) {
                 msg.channel.sendMessage(`Cleared the queue`);
             }
         }
-
+        if (msga.startsWith(prefix +`infomusic`)) {
+            git.short(commit => git.branch(branch => {
+              msg.channel.sendMessage(`Version: \`Emilia#${branch}@${commit}\` (cf: ${config.configRev} cr: ${CURRENT_REV}). Info about Emilia music bot can be found at https://github.com/Jorisvideo/emilia-musicbot.`);
+            }));
+        }
         if (msga.startsWith(prefix + "clear")) {
             if (msg.guild.owner.id == msg.author.id || msg.author.id == config.owner_id || config.admins.indexOf(msg.author.id) != -1 || msg.channel.permissionsFor(msg.member).hasPermission('MANAGE_SERVER')) {
                 let queue = getQueue(msg.guild.id);
