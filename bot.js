@@ -258,18 +258,16 @@ client.on("message", function(msg) {
         }
 
         if (msg.content.startsWith(prefix + 'skip')) {
-            if (msg.guild.owner.id == msg.author.id || msg.author.id == config.owner_id || config.admins.indexOf(msg.author.id) != -1 || msg.channel.permissionsFor(msg.member).hasPermission('MANAGE_SERVER')) {
+        if (!msg.member.voiceChannel) return msg.channel.sendMessage('You need to be in a voice channel')
                 let player = msg.guild.voiceConnection.player.dispatcher
                 if (!player || player.paused) return msg.channel.sendMessage("Bot is not playing!")
                 msg.channel.sendMessage('Skipping song...');
                 player.end()
-            } else {
-                msg.channel.sendMessage('Only the admins can do this command');
-            }
         }
 
         if (msg.content.startsWith(prefix + 'pause')) {
             if (msg.guild.owner.id == msg.author.id || msg.author.id == config.owner_id || config.admins.indexOf(msg.author.id) != -1) {
+                if (!msg.member.voiceChannel) return msg.channel.sendMessage('You need to be in a voice channel')
                 let player = msg.guild.voiceConnection.player.dispatcher
                 if (!player || player.paused) return msg.channel.sendMessage("Bot is not playing")
                 player.pause();
@@ -297,6 +295,7 @@ client.on("message", function(msg) {
 
         if (msg.content.startsWith(prefix + 'resume')) {
             if (msg.guild.owner.id == msg.author.id || msg.author.id == config.owner_id || config.admins.indexOf(msg.author.id) != -1) {
+                if (!msg.member.voiceChannel) return msg.channel.sendMessage('You need to be in a voice channel')
                 let player = msg.guild.voiceConnection.player.dispatcher
                 if (!player) return msg.channel.sendMessage('No music is playing at this time.');
                 if (player.playing) return msg.channel.sendMessage('The music is already playing');
