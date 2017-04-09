@@ -26,7 +26,6 @@ try {
 const admins = config.admins;
 const client = new Discord.Client()
 const prefix = config.prefix;
-const rb = "```"
 const fs = require("fs")
 const queues = {}
 const ytdl = require('ytdl-core')
@@ -244,6 +243,19 @@ client.on("message", function(msg) {
 
             play(msg, getQueue(msg.guild.id), suffix)
         }
+        if (msga.startsWith(prefix + 'leave')) {
+            if (!msg.guild.voiceConnection) {
+                if (!msg.member.voiceChannel) return msg.channel.sendMessage('You need to be in a voice channel')
+                var chan = msg.member.voiceChannel
+                chan.leave();
+                let queue = getQueue(msg.guild.id);
+                if (queue.length == 0) return msg.channel.sendMessage(`No music in queue`);
+                for (var i = queue.length - 1; i >= 0; i--) {
+                    queue.splice(i, 1);
+                }
+                msg.channel.sendMessage(`Cleared the queue`);
+            }
+        }
 
         if (msga.startsWith(prefix + "clear")) {
             if (msg.guild.owner.id == msg.author.id || msg.author.id == config.owner_id || config.admins.indexOf(msg.author.id) != -1 || msg.channel.permissionsFor(msg.member).hasPermission('MANAGE_SERVER')) {
@@ -313,16 +325,16 @@ client.on("message", function(msg) {
             let queue = getQueue(msg.guild.id);
             if (queue.length == 0) return msg.channel.sendMessage(msg, "No music in queue");
             msg.channel.sendMessage({
-        embed: {
-            author: {
-                name: client.user.username,
-                icon_url: client.user.avatarURL,
-                url: "http://takohell.com:3000"
-            },
-            color: 0x00FF00,
-            title: `Currently playing`,
-            description: `${queue[0].title} | by ${queue[0].requested}`
-        }
+                embed: {
+                    author: {
+                        name: client.user.username,
+                        icon_url: client.user.avatarURL,
+                        url: "http://takohell.com:3000"
+                    },
+                    color: 0x00FF00,
+                    title: `Currently playing`,
+                    description: `${queue[0].title} | by ${queue[0].requested}`
+                }
             });
         }
 
@@ -334,16 +346,16 @@ client.on("message", function(msg) {
                 text += `${(i + 1)}. ${queue[i].title} | requested by ${queue[i].requested}\n`
             };
             msg.channel.sendMessage({
-        embed: {
-            author: {
-                name: client.user.username,
-                icon_url: client.user.avatarURL,
-                url: "http://takohell.com:3000"
-            },
-            color: 0x00FF00,
-            title: `Queue`,
-            description: `\n${text}`
-        }
+                embed: {
+                    author: {
+                        name: client.user.username,
+                        icon_url: client.user.avatarURL,
+                        url: "http://takohell.com:3000"
+                    },
+                    color: 0x00FF00,
+                    title: `Queue`,
+                    description: `\n${text}`
+                }
             });
         }
     } catch (err) {
