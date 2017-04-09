@@ -1,13 +1,13 @@
 var errorlog = require("./data/errors.json")
 
 const Discord = require("discord.js")
-
+const con = console.log;
 try {
     var config = require('./config.json');
-    console.log("Config file detected!");
+    con("Config file detected!");
 } catch (err) {
-    console.log(err);
-    console.log("No config detected, attempting to use environment variables...");
+    con(err);
+    con("No config detected, attempting to use environment variables...");
     if (process.env.MUSIC_BOT_TOKEN && process.env.YOUTUBE_API_KEY) {
         var config = {
             "token": process.env.MUSIC_BOT_TOKEN,
@@ -19,7 +19,7 @@ try {
             "admins": ["193090359700619264"]
         }
     } else {
-        console.log("No token passed! Exiting...")
+        con("No token passed! Exiting...")
         process.exit(0)
     }
 }
@@ -56,10 +56,10 @@ var paused = {}
 function getRandomMusic(queue, msg) {
     fs.readFile('./data/autoplaylist.txt', 'utf8', function(err, data) {
         if (err) throw err;
-        console.log('OK: autoplaylist.txt');
+        con('OK: autoplaylist.txt');
         var random = data.split('\n');
         var num = getRandomInt(random.length);
-        console.log(random[num])
+        con(random[num])
         var url = random[num];
         msg.author.username = "AUTOPLAYLIST";
         play(msg, queue, url)
@@ -83,7 +83,7 @@ function play(msg, queue, song) {
                     "requested": msg.author.username,
                     "toplay": stream
                 })
-                console.log("Queued " + queue[queue.length - 1].title + " in " + msg.guild.name + " as requested by " + queue[queue.length - 1].requested)
+                con("Queued " + queue[queue.length - 1].title + " in " + msg.guild.name + " as requested by " + queue[queue.length - 1].requested)
                 msg.channel.sendMessage({
                 embed: {
                     author: {
@@ -115,10 +115,10 @@ function play(msg, queue, song) {
             description: `**${queue[0].title}** | Requested by ***${queue[0].requested}***`
         }
             });
-            console.log(`Playing ${queue[0].title} as requested by ${queue[0].requested} in ${msg.guild.name}`);
+            con(`Playing ${queue[0].title} as requested by ${queue[0].requested} in ${msg.guild.name}`);
             client.user.setGame(queue[0].title);
             let connection = msg.guild.voiceConnection
-            if (!connection) return console.log("No Connection!");
+            if (!connection) return con("No Connection!");
             intent = connection.playStream(queue[0].toplay)
 
             intent.on('error', () => {
@@ -135,14 +135,14 @@ function play(msg, queue, song) {
             getRandomMusic(queue, msg);
         }
     } catch (err) {
-        console.log("WELL LADS LOOKS LIKE SOMETHING WENT WRONG! Visit Joris vidéo server for support (https://discord.gg/E8tXHqC) and quote this error:\n\n\n" + err.stack)
+        con("WELL LADS LOOKS LIKE SOMETHING WENT WRONG! Visit Joris vidéo server for support (https://discord.gg/E8tXHqC) and quote this error:\n\n\n" + err.stack)
         errorlog[String(Object.keys(errorlog).length)] = {
             "code": err.code,
             "error": err,
             "stack": err.stack
         }
         fs.writeFile("./data/errors.json", JSON.stringify(errorlog), function(err) {
-            if (err) return console.log("Even worse we couldn't write to our error log file! Make sure data/errors.json still exists!");
+            if (err) return con("Even worse we couldn't write to our error log file! Make sure data/errors.json still exists!");
         })
     }
 }
@@ -173,26 +173,26 @@ Bot is logged in and ready to play some tunes! / Bot est connecté et prêt à j
 LET'S GO!
 ------------------------------------------------------`
 
-        console.log(msg)
+        con(msg)
         var errsize = Number(fs.statSync("./data/errors.json")["size"])
-        console.log("Current error log size is " + errsize + " Bytes")
+        con("Current error log size is " + errsize + " Bytes")
         if (errsize > 5000) {
             errorlog = {}
             fs.writeFile("./data/errors.json", JSON.stringify(errorlog), function(err) {
-                if (err) return console.log("Uh oh we couldn't wipe the error log");
-                console.log("Just to say, we have wiped the error log on your system as its size was too large")
+                if (err) return con("Uh oh we couldn't wipe the error log");
+                con("Just to say, we have wiped the error log on your system as its size was too large")
             })
         }
-        console.log("------------------------------------------------------")
+        con("------------------------------------------------------")
     } catch (err) {
-        console.log("WELL LADS LOOKS LIKE SOMETHING WENT WRONG! Visit Joris vidéo for support (https://discord.gg/E8tXHqC) and quote this error:\n\n\n" + err.stack)
+        con("WELL LADS LOOKS LIKE SOMETHING WENT WRONG! Visit Joris vidéo for support (https://discord.gg/E8tXHqC) and quote this error:\n\n\n" + err.stack)
         errorlog[String(Object.keys(errorlog).length)] = {
             "code": err.code,
             "error": err,
             "stack": err.stack
         }
         fs.writeFile("./data/errors.json", JSON.stringify(errorlog), function(err) {
-            if (err) return console.log("Even worse we couldn't write to our error log file! Make sure data/errors.json still exists!");
+            if (err) return con("Even worse we couldn't write to our error log file! Make sure data/errors.json still exists!");
         })
 
     }
@@ -224,6 +224,7 @@ client.on('voiceStateUpdate', function(oldMember, newMember) {
 });
 
 client.on("message", function(msg) {
+    const msga = msg.content;
     try {
 		if (msg.channel.type === "dm") return;
         if (msg.author === client.user)
@@ -232,19 +233,19 @@ client.on("message", function(msg) {
 
                 return;
             }
-        if (msg.content.startsWith(prefix + 'play')) {
+        if (msga.startsWith(prefix + 'play')) {
             if (!msg.guild.voiceConnection) {
                 if (!msg.member.voiceChannel) return msg.channel.sendMessage('You need to be in a voice channel')
                 var chan = msg.member.voiceChannel
                 chan.join()
             }
-            let suffix = msg.content.split(" ").slice(1).join(" ")
+            let suffix = msga.split(" ").slice(1).join(" ")
             if (!suffix) return msg.channel.sendMessage('You need to specify a song link or a song name!')
 
             play(msg, getQueue(msg.guild.id), suffix)
         }
 
-        if (msg.content.startsWith(prefix + "clear")) {
+        if (msga.startsWith(prefix + "clear")) {
             if (msg.guild.owner.id == msg.author.id || msg.author.id == config.owner_id || config.admins.indexOf(msg.author.id) != -1 || msg.channel.permissionsFor(msg.member).hasPermission('MANAGE_SERVER')) {
                 let queue = getQueue(msg.guild.id);
                 if (queue.length == 0) return msg.channel.sendMessage(`No music in queue`);
@@ -257,7 +258,7 @@ client.on("message", function(msg) {
             }
         }
 
-        if (msg.content.startsWith(prefix + 'skip')) {
+        if (msga.startsWith(prefix + 'skip')) {
         if (!msg.member.voiceChannel) return msg.channel.sendMessage('You need to be in a voice channel')
                 let player = msg.guild.voiceConnection.player.dispatcher
                 if (!player || player.paused) return msg.channel.sendMessage("Bot is not playing!")
@@ -265,7 +266,7 @@ client.on("message", function(msg) {
                 player.end()
         }
 
-        if (msg.content.startsWith(prefix + 'pause')) {
+        if (msga.startsWith(prefix + 'pause')) {
             if (msg.guild.owner.id == msg.author.id || msg.author.id == config.owner_id || config.admins.indexOf(msg.author.id) != -1) {
                 if (!msg.member.voiceChannel) return msg.channel.sendMessage('You need to be in a voice channel')
                 let player = msg.guild.voiceConnection.player.dispatcher
@@ -276,8 +277,8 @@ client.on("message", function(msg) {
                 msg.channel.sendMessage('Only admins can use this command!');
             }
         }
-        if (msg.content.startsWith(prefix + 'volume')) {
-            let suffix = msg.content.split(" ")[1];
+        if (msga.startsWith(prefix + 'volume')) {
+            let suffix = msga.split(" ")[1];
             var player = msg.guild.voiceConnection.player.dispatcher
             if (!player || player.paused) return msg.channel.sendMessage('No music m8, queue something with `' + prefix + 'play`');
             if (!suffix) {
@@ -293,7 +294,7 @@ client.on("message", function(msg) {
             }
         }
 
-        if (msg.content.startsWith(prefix + 'resume')) {
+        if (msga.startsWith(prefix + 'resume')) {
             if (msg.guild.owner.id == msg.author.id || msg.author.id == config.owner_id || config.admins.indexOf(msg.author.id) != -1) {
                 if (!msg.member.voiceChannel) return msg.channel.sendMessage('You need to be in a voice channel')
                 let player = msg.guild.voiceConnection.player.dispatcher
@@ -308,7 +309,7 @@ client.on("message", function(msg) {
             }
         }
 
-        if (msg.content.startsWith(prefix + 'np') || msg.content.startsWith(prefix + 'nowplaying')) {
+        if (msga.startsWith(prefix + 'current') || msga.startsWith(prefix + 'nowplaying')) {
             let queue = getQueue(msg.guild.id);
             if (queue.length == 0) return msg.channel.sendMessage(msg, "No music in queue");
             msg.channel.sendMessage({
@@ -325,7 +326,7 @@ client.on("message", function(msg) {
             });
         }
 
-        if (msg.content.startsWith(prefix + 'queue')) {
+        if (msga.startsWith(prefix + 'queue')) {
             let queue = getQueue(msg.guild.id);
             if (queue.length == 0) return msg.channel.sendMessage("No music in queue");
             let text = '';
@@ -346,14 +347,14 @@ client.on("message", function(msg) {
             });
         }
     } catch (err) {
-        console.log("WELL LADS LOOKS LIKE SOMETHING WENT WRONG! Visit Joris Video and quote this error:\n\n\n" + err.stack)
+        con("WELL LADS LOOKS LIKE SOMETHING WENT WRONG! Visit Joris Video and quote this error:\n\n\n" + err.stack)
         errorlog[String(Object.keys(errorlog).length)] = {
             "code": err.code,
             "error": err,
             "stack": err.stack
         }
         fs.writeFile("./data/errors.json", JSON.stringify(errorlog), function(err) {
-            if (err) return console.log("Even worse we couldn't write to our error log file! Make sure data/errors.json still exists!");
+            if (err) return con("Even worse we couldn't write to our error log file! Make sure data/errors.json still exists!");
         })
 
     }
