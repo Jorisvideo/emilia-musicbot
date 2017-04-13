@@ -7,7 +7,7 @@ git = require('git-rev');
 git.short(commit => git.branch(branch => {
   console.log(`Emilia#${branch}@${commit}`);
 }));
-const CURRENT_REV = "0.1.5";
+const CURRENT_REV = "0.1.6";
 try {
     var config = require('./config.json');
     con("Config file detected!");
@@ -100,7 +100,7 @@ function play(msg, queue, song) {
                     title: `Queued`,
                     description: "**" + queue[queue.length - 1].title + "**"
                 }
-                    });
+                    }).then(response => { response.delete(5000) });
                 if (test) {
                     setTimeout(function() {
                         play(msg, queue)
@@ -119,7 +119,7 @@ function play(msg, queue, song) {
             title: `Now Playing`,
             description: `**${queue[0].title}** | Requested by ***${queue[0].requested}***`
         }
-            });
+            }).then(response => { response.delete(5000) });
             con(`Playing ${queue[0].title} as requested by ${queue[0].requested} in ${msg.guild.name}`);
             client.user.setGame(queue[0].title);
             let connection = msg.guild.voiceConnection
@@ -136,7 +136,7 @@ function play(msg, queue, song) {
                 play(msg, queue)
             })
         } else {
-            msg.channel.sendMessage('No more music in queue! Starting autoplaylist')
+            msg.channel.sendMessage('No more music in queue! Starting autoplaylist').then(response => { response.delete(5000) });
             getRandomMusic(queue, msg);
         }
     } catch (err) {
@@ -175,6 +175,7 @@ client.on('ready', function() {
 Logged in as ${client.user.username} [ID ${client.user.id}]
 On ${client.guilds.size} servers!
 ${client.channels.size} channels and ${client.users.size} users cached!
+Created by Silver Crow
 Bot is logged in and ready to play some tunes! / Bot est connecté et prêt à jouer des morceaux!
 LET'S GO!
 ------------------------------------------------------`
@@ -256,11 +257,11 @@ client.on("message", function(msg) {
                 var chan = msg.member.voiceChannel
                 chan.leave();
                 let queue = getQueue(msg.guild.id);
-                if (queue.length == 0) return msg.channel.sendMessage(`No music in queue`);
+                if (queue.length == 0) return msg.channel.sendMessage(`No music in queue`).then(response => { response.delete(5000) });
                 for (var i = queue.length - 1; i >= 0; i--) {
                     queue.splice(i, 1);
                 }
-                msg.channel.sendMessage(`Cleared the queue`);
+                msg.channel.sendMessage(`Cleared the queue`).then(response => { response.delete(5000) });
             }
         }
         if (msga.startsWith(prefix +`infomusic`)) {
@@ -271,33 +272,33 @@ client.on("message", function(msg) {
         if (msga.startsWith(prefix + "clear")) {
             if (msg.guild.owner.id == msg.author.id || msg.author.id == config.owner_id || config.admins.indexOf(msg.author.id) != -1 || msg.channel.permissionsFor(msg.member).hasPermission('MANAGE_SERVER')) {
                 let queue = getQueue(msg.guild.id);
-                if (queue.length == 0) return msg.channel.sendMessage(`No music in queue`);
+                if (queue.length == 0) return msg.channel.sendMessage(`No music in queue`).then(response => { response.delete(5000) });
                 for (var i = queue.length - 1; i >= 0; i--) {
                     queue.splice(i, 1);
                 }
-                msg.channel.sendMessage(`Cleared the queue`)
+                msg.channel.sendMessage(`Cleared the queue`).then(response => { response.delete(5000) })
             } else {
-                msg.channel.sendMessage('Only the admins can do this command');
+                msg.channel.sendMessage('Only the admins can do this command').then(response => { response.delete(5000) });
             }
         }
 
         if (msga.startsWith(prefix + 'skip')) {
         if (!msg.member.voiceChannel) return msg.channel.sendMessage('You need to be in a voice channel')
                 let player = msg.guild.voiceConnection.player.dispatcher
-                if (!player || player.paused) return msg.channel.sendMessage("Bot is not playing!")
-                msg.channel.sendMessage('Skipping song...');
+                if (!player || player.paused) return msg.channel.sendMessage("Bot is not playing!").then(response => { response.delete(5000) });
+                msg.channel.sendMessage('Skipping song...').then(response => { response.delete(5000) });
                 player.end()
         }
 
         if (msga.startsWith(prefix + 'pause')) {
             if (msg.guild.owner.id == msg.author.id || msg.author.id == config.owner_id || config.admins.indexOf(msg.author.id) != -1) {
-                if (!msg.member.voiceChannel) return msg.channel.sendMessage('You need to be in a voice channel')
+                if (!msg.member.voiceChannel) return msg.channel.sendMessage('You need to be in a voice channel').then(response => { response.delete(5000) });
                 let player = msg.guild.voiceConnection.player.dispatcher
-                if (!player || player.paused) return msg.channel.sendMessage("Bot is not playing")
+                if (!player || player.paused) return msg.channel.sendMessage("Bot is not playing").then(response => { response.delete(5000) });
                 player.pause();
-                msg.channel.sendMessage("Pausing music...");
+                msg.channel.sendMessage("Pausing music...").then(response => { response.delete(5000) });
             } else {
-                msg.channel.sendMessage('Only admins can use this command!');
+                msg.channel.sendMessage('Only admins can use this command!').then(response => { response.delete(5000) });
             }
         }
         if (msga.startsWith(prefix + 'volume')) {
@@ -305,30 +306,30 @@ client.on("message", function(msg) {
             var player = msg.guild.voiceConnection.player.dispatcher
             if (!player || player.paused) return msg.channel.sendMessage('No music m8, queue something with `' + prefix + 'play`');
             if (!suffix) {
-                msg.channel.sendMessage(`The current volume is ${(player.volume * 100)}`);
+                msg.channel.sendMessage(`The current volume is ${(player.volume * 100)}`).then(response => { response.delete(5000) });
             } else if (msg.guild.owner.id == msg.author.id || msg.author.id == config.owner_id || config.admins.indexOf(msg.author.id) != -1) {
                 let volumeBefore = player.volume
                 let volume = parseInt(suffix);
-                if (volume > 100) return msg.channel.sendMessage("The music can't be higher then 100");
+                if (volume > 100) return msg.channel.sendMessage("The music can't be higher then 100").then(response => { response.delete(5000) });
                 player.setVolume((volume / 100));
-                msg.channel.sendMessage(`Volume changed from ${(volumeBefore * 100)} to ${volume}`);
+                msg.channel.sendMessage(`Volume changed from ${(volumeBefore * 100)} to ${volume}`).then(response => { response.delete(5000) });
             } else {
-                msg.channel.sendMessage('Only admins can change the volume!');
+                msg.channel.sendMessage('Only admins can change the volume!').then(response => { response.delete(5000) });
             }
         }
 
         if (msga.startsWith(prefix + 'resume')) {
             if (msg.guild.owner.id == msg.author.id || msg.author.id == config.owner_id || config.admins.indexOf(msg.author.id) != -1) {
-                if (!msg.member.voiceChannel) return msg.channel.sendMessage('You need to be in a voice channel')
+                if (!msg.member.voiceChannel) return msg.channel.sendMessage('You need to be in a voice channel').then(response => { response.delete(5000) });
                 let player = msg.guild.voiceConnection.player.dispatcher
-                if (!player) return msg.channel.sendMessage('No music is playing at this time.');
-                if (player.playing) return msg.channel.sendMessage('The music is already playing');
+                if (!player) return msg.channel.sendMessage('No music is playing at this time.').then(response => { response.delete(5000) });
+                if (player.playing) return msg.channel.sendMessage('The music is already playing').then(response => { response.delete(5000) });
                 var queue = getQueue(msg.guild.id);
                 client.user.setGame(queue[0].title);
                 player.resume();
-                msg.channel.sendMessage("Resuming music...");
+                msg.channel.sendMessage("Resuming music...").then(response => { response.delete(5000) });
             } else {
-                msg.channel.sendMessage('Only admins can do this command');
+                msg.channel.sendMessage('Only admins can do this command').then(response => { response.delete(5000) });
             }
         }
 
@@ -346,7 +347,7 @@ client.on("message", function(msg) {
                     title: `Currently playing`,
                     description: `${queue[0].title} | by ${queue[0].requested}`
                 }
-            });
+            }).then(response => { response.delete(5000) });
         }
 
         if (msga.startsWith(prefix + 'queue')) {
@@ -367,7 +368,7 @@ client.on("message", function(msg) {
                     title: `Queue`,
                     description: `\n${text}`
                 }
-            });
+            }).then(response => { response.delete(5000) });
         }
     } catch (err) {
         con("WELL LADS LOOKS LIKE SOMETHING WENT WRONG! Visit Joris Video and quote this error:\n\n\n" + err.stack)
