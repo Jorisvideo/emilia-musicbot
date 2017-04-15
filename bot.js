@@ -177,7 +177,7 @@ client.on('ready', function() {
         if (language == "fr") {
             var msg = `
 ------------------------------------------------------
-> version 0.1.5
+> version 0.1.6
 > Faites 'git pull' périodiquement pour garder votre bot à jour!
 > Connexion en cours ...
 ------------------------------------------------------
@@ -191,7 +191,7 @@ Allons-y
 }else{
         var msg = `
 ------------------------------------------------------
-> version 0.1.5
+> version 0.1.6
 > Do 'git pull' periodically to keep your bot updated! 
 > Logging in...
 ------------------------------------------------------
@@ -205,26 +205,42 @@ LET'S GO!
 }
 
 
-        con(msg)
-        var errsize = Number(fs.statSync("./data/errors.json")["size"])
-        con("Current error log size is " + errsize + " Bytes")
+    con(msg)
+var errsize = Number(fs.statSync("./data/errors.json")["size"])
+    if (language == "fr") {
+        con("La taille actuelle du journal des erreurs est de " + errsize + " Octets") 
+    }else{
+        con("Current error log size is " + errsize + " Bytes") }
         if (errsize > 5000) {
             errorlog = {}
             fs.writeFile("./data/errors.json", JSON.stringify(errorlog), function(err) {
+                if (language == "fr"){
+                    if (err) return con("Uh oh, nous n'avons pas pu effacer le journal des erreurs");
+                    con("Juste pour dire, nous avons effacé le journal des erreurs sur votre système car sa taille était trop grande")
+                }else{
                 if (err) return con("Uh oh we couldn't wipe the error log");
-                con("Just to say, we have wiped the error log on your system as its size was too large")
+                    con("Just to say, we have wiped the error log on your system as its size was too large")}
             })
         }
         con("------------------------------------------------------")
     } catch (err) {
+        if (language == "fr"){
+            con("BIEN LADS COMPREND QUE QUELQUE FOIS A ÉTÉ MAL! Visitez Joris vidéo pour obtenir de l'aide (https://discord.gg/E8tXHqC) et indiquez cette erreur:\n\n\n" + err.stack)
+        }else{
         con("WELL LADS LOOKS LIKE SOMETHING WENT WRONG! Visit Joris vidéo for support (https://discord.gg/E8tXHqC) and quote this error:\n\n\n" + err.stack)
+        }
         errorlog[String(Object.keys(errorlog).length)] = {
             "code": err.code,
             "error": err,
             "stack": err.stack
         }
         fs.writeFile("./data/errors.json", JSON.stringify(errorlog), function(err) {
+            if (language == "fr"){
+            if (err) return con("Pire encore, nous ne pouvions pas écrire dans notre fichier journal d'erreur! Assurez-vous que data / errors.json existe toujours!");
+
+            }else{
             if (err) return con("Even worse we couldn't write to our error log file! Make sure data/errors.json still exists!");
+            }
         })
 
     }
@@ -260,14 +276,26 @@ client.on("message", function(msg) {
     try {
 		if (msg.channel.type === "dm") return;
         if (msg.author === client.user)
+        if(language == 'fr'){
+            if (msg.guild === undefined) {
+                msg.channel.sendMessage("Le bot ne fonctionne que dans les serveurs!")
+
+                return;
+            }
+        }else{
             if (msg.guild === undefined) {
                 msg.channel.sendMessage("The bot only works in servers!")
 
                 return;
             }
+        }
         if (msga.startsWith(prefix + 'play')) {
             if (!msg.guild.voiceConnection) {
+                if(language == "fr"){
+                if (!msg.member.voiceChannel) return msg.channel.sendMessage('Vous devez être dans un channel vocal')
+                }else{
                 if (!msg.member.voiceChannel) return msg.channel.sendMessage('You need to be in a voice channel')
+                }
                 var chan = msg.member.voiceChannel
                 chan.join()
             }
@@ -278,15 +306,28 @@ client.on("message", function(msg) {
         }
         if (msga.startsWith(prefix + 'leave')) {
             if (!msg.guild.voiceConnection) {
+                if(language == "fr"){
+                if (!msg.member.voiceChannel) return msg.channel.sendMessage('Vous devez être dans un channel vocal')
+                }else{
                 if (!msg.member.voiceChannel) return msg.channel.sendMessage('You need to be in a voice channel')
+                }
                 var chan = msg.member.voiceChannel
                 chan.leave();
                 let queue = getQueue(msg.guild.id);
+                if(language == "fr"){
+                if (queue.length == 0) return msg.channel.sendMessage(`Pas de music dans la queue`).then(response => { response.delete(5000) });
+                for (var i = queue.length - 1; i >= 0; i--) {
+                    queue.splice(i, 1);
+                }
+                msg.channel.sendMessage(`La file d'attente à bien été effacer`).then(response => { response.delete(5000) });
+
+                }else{
                 if (queue.length == 0) return msg.channel.sendMessage(`No music in queue`).then(response => { response.delete(5000) });
                 for (var i = queue.length - 1; i >= 0; i--) {
                     queue.splice(i, 1);
                 }
                 msg.channel.sendMessage(`Cleared the queue`).then(response => { response.delete(5000) });
+            }
             }
         }
         if (msga.startsWith(prefix +`infomusic`)) {
