@@ -29,14 +29,15 @@ try {
         process.exit(0)
     }
 }
-const admins = config.admins;
-const client = new Discord.Client()
-const prefix = config.prefix;
-const fs = require("fs")
-const queues = {}
-const ytdl = require('ytdl-core')
-const search = require('youtube-search')
-const opts = {
+const admins = config.admins,
+client = new Discord.Client(),
+language = config.language,
+prefix = config.prefix,
+fs = require("fs"),
+queues = {},
+ytdl = require('ytdl-core'),
+search = require('youtube-search'),
+opts = {
     part: 'snippet',
     maxResults: 10,
     key: config.youtube_api_key
@@ -162,23 +163,47 @@ function isCommander(id) {
 	}
 	return false;
 }
+if (language == "fr") {
+    con("French language detected. Logs are still in English.");
+} else if (language == "en") {
+    con("English language detected.");
+} else {
+    con("Language could not be detected. Defaulting to English.");
+}
 client.on('ready', function() {
     try {
         config.client_id = client.user.id;
         client.user.setStatus('online', config.status)
+        if (language == "fr") {
+            var msg = `
+------------------------------------------------------
+> version 0.1.5
+> Faites 'git pull' périodiquement pour garder votre bot à jour!
+> Connexion en cours ...
+------------------------------------------------------
+Connecté en tant que ${client.user.username} [ID ${client.user.id}]
+Present dans ${client.guilds.size} serveurs !
+Present dans ${client.channels.size} channels et ${client.users.size} utilisateurs en cache!
+Creer par Silver Crow
+Bot est connecté et prêt à jouer des morceaux!
+Allons-y
+------------------------------------------------------`
+}else{
         var msg = `
 ------------------------------------------------------
 > version 0.1.5
-> Do 'git pull' periodically to keep your bot updated! / Faites 'git pull' périodiquement pour garder votre bot à jour! 
+> Do 'git pull' periodically to keep your bot updated! 
 > Logging in...
 ------------------------------------------------------
 Logged in as ${client.user.username} [ID ${client.user.id}]
 On ${client.guilds.size} servers!
 ${client.channels.size} channels and ${client.users.size} users cached!
 Created by Silver Crow
-Bot is logged in and ready to play some tunes! / Bot est connecté et prêt à jouer des morceaux!
+Bot is logged in and ready to play some tunes!
 LET'S GO!
 ------------------------------------------------------`
+}
+
 
         con(msg)
         var errsize = Number(fs.statSync("./data/errors.json")["size"])
@@ -381,7 +406,16 @@ client.on("message", function(msg) {
             if (err) return con("Even worse we couldn't write to our error log file! Make sure data/errors.json still exists!");
         })
 
-    }
+    } if (language == "fr") {
+        if (msga === '!aide') {
+            msg.channel.sendMessage("Bonjour! Je m'appelle Emilia-bot-music!\nVoici ma liste de commandes:\n`!aide`: Pour savoir ma liste de commandes.\n`! \nEnjoy!");
+            }
+        }
+    if (language == "en") {
+        if (msga === "!help") {
+            msg.channel.sendMessage("Hi! My name is Emilia-bot-music!\nHere is my command list:\n`!help`: To know my command list.\n` :) \nEnjoy!");
+            }
+        }
 })
 
 client.login(config.token)
