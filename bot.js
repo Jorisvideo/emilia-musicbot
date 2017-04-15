@@ -104,7 +104,11 @@ function play(msg, queue, song) {
                     "requested": msg.author.username,
                     "toplay": stream
                 })
-                con("Queued " + queue[queue.length - 1].title + " in " + msg.guild.name + " as requested by " + queue[queue.length - 1].requested)
+            if(language == "fr"){
+                con("Queued " + queue[queue.length - 1].title + " dans " + msg.guild.name + " demandé par " + queue[queue.length - 1].requested)
+            }else{
+                con("Queued " + queue[queue.length - 1].title + " in " + msg.guild.name + " as requested by " + queue[queue.length - 1].requested)                
+            }
                 msg.channel.sendMessage({
                 embed: {
                     author: {
@@ -124,7 +128,36 @@ function play(msg, queue, song) {
                 }
             })
         } else if (queue.length != 0) {
-                        msg.channel.sendMessage({
+            if(language == 'fr'){
+        msg.channel.sendMessage({
+        embed: {
+            author: {
+                name: client.user.username,
+                icon_url: client.user.avatarURL,
+                url: "https://emilia-bot.xyz"
+            },
+            color: 0x00FF00,
+            title: `Lecture en cours`,
+            description: `**${queue[0].title}** | Demande par ***${queue[0].requested}***`
+        }
+            }).then(response => { response.delete(5000) });
+            con(`Lecture ${queue[0].title} demandé par ${queue[0].requested} dans ${msg.guild.name}`);
+            client.user.setGame(queue[0].title);
+            let connection = msg.guild.voiceConnection
+            if (!connection) return con("Pas de connexion!");
+            intent = connection.playStream(queue[0].toplay)
+
+            intent.on('error', () => {
+                queue.shift()
+                play(msg, queue)
+            })
+
+            intent.on('end', () => {
+                queue.shift()
+                play(msg, queue)
+            })
+            }else{
+        msg.channel.sendMessage({
         embed: {
             author: {
                 name: client.user.username,
@@ -151,11 +184,28 @@ function play(msg, queue, song) {
                 queue.shift()
                 play(msg, queue)
             })
+            }
         } else {
-            msg.channel.sendMessage('No more music in queue! Starting autoplaylist').then(response => { response.delete(5000) });
+            if(language == "fr"){
+            msg.channel.sendMessage('Plus de musique dans la file d\'attente! Démarrage de la liste de lecture automatique').then(response => { response.delete(5000) });
             getRandomMusic(queue, msg);
+            }else{
+            msg.channel.sendMessage('No more music in queue! Starting autoplaylist').then(response => { response.delete(5000) });
+            getRandomMusic(queue, msg);    
+            }
         }
     } catch (err) {
+        if(language =="fr"){
+        con("BIEN LADS COMPREND QUE QUELQUE FOIS A ÉTÉ MAL! Visitez le serveur de vidéos Joris pour obtenir de l'assistance (https://discord.gg/E8tXHqC) et citez cette erreur:\n\n\n" + err.stack)
+        errorlog[String(Object.keys(errorlog).length)] = {
+            "code": err.code,
+            "error": err,
+            "stack": err.stack
+        }
+        fs.writeFile("./data/errors.json", JSON.stringify(errorlog), function(err) {
+            if (err) return con("Pire encore, nous ne pouvions pas écrire dans notre fichier journal d'erreur! Assurez-vous que data / errors.json existe toujours!");
+        });
+        }else{
         con("WELL LADS LOOKS LIKE SOMETHING WENT WRONG! Visit Joris vidéo server for support (https://discord.gg/E8tXHqC) and quote this error:\n\n\n" + err.stack)
         errorlog[String(Object.keys(errorlog).length)] = {
             "code": err.code,
@@ -164,7 +214,9 @@ function play(msg, queue, song) {
         }
         fs.writeFile("./data/errors.json", JSON.stringify(errorlog), function(err) {
             if (err) return con("Even worse we couldn't write to our error log file! Make sure data/errors.json still exists!");
-        })
+        });
+        }
+
     }
 }
 function isCommander(id) {
